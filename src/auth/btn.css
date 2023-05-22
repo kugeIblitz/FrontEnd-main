@@ -1,0 +1,44 @@
+.auth-details {
+    margin-top: 20px;
+  }
+  
+  .auth-details__signed-in {
+    display: flex;
+    align-items: center;
+  }
+  
+  .auth-details__signed-in-text {
+    font-size: 16px;
+    margin-right: 10px;
+    font-weight: bold;
+
+  }
+  
+  .auth-details__sign-out-button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  
+  .auth-details__sign-out-button:hover {
+    background-color: #e53935;
+  }
+  
+  .auth-details__sign-out-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #e57373;
+  }
+  
+  
+  .auth-details__sign-out-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  .auth-details__signed-out-text {
+    font-size: 16px;
+  }
+  
