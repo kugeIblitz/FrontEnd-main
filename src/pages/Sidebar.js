@@ -17,15 +17,23 @@ const sidebarNavItems = [
     },
     {
         display: 'Favorites',
-        icon: <i className='bx bx-Favorites'></i>,
+        icon: <i className='bx bx-star'></i>,
         to: '/Favorites',
         section: 'Favorites'
-    },
+      },
+      
     {
         display: 'Users',
         icon: <i className='bx bx-user'></i>,
         to: '/users',
         section: 'user'
+    },
+ 
+    {
+        display: 'About',
+        icon: <i className='bx bx-user'></i>,
+        to: '/About',
+        section: 'About'
     },
   
 ]

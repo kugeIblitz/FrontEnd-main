@@ -1,0 +1,23 @@
+.about-container {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .about-content {
+    margin-left: 350px;
+  }
+  
+  .about-content h2 {
+    font-size: 24px;
+    margin-left: 20px;
+
+}
+  
+  .paragraph-container {
+    margin-left: 20px;
+  }
+  
+  .paragraph-container p {
+    margin-bottom: 20px;
+  }
+  

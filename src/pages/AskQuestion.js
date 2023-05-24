@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { postQuestion } from "../Api/Question";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 import "./askquestion.css";
 import Sidebar from "./Sidebar";
 
@@ -7,7 +8,8 @@ export default class AskQuestion extends Component {
   state = {
     title: "",
     content: "",
-    questionSubmitted: false, // Track if the question has been submitted
+    photo: null,
+    questionSubmitted: false,
   };
 
   handleInputChange = (event) => {
@@ -20,20 +22,48 @@ export default class AskQuestion extends Component {
     });
   };
 
+  handlePhotoChange = (event) => {
+    const file = event.target.files[0];
+    this.setState({ photo: file });
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
-    const { title, content } = this.state;
-    postQuestion({ title: title, content: content })
-      .then((response) => {
-        console.log('Question posted');
-        this.setState({ questionSubmitted: true, title: "", content: "" }); // Set questionSubmitted to true and clear title and content
+    const { title, content, photo } = this.state;
+
+    const storage = getStorage();
+    const storageRef = ref(storage, `photos/${title}`);
+
+    uploadBytes(storageRef, photo)
+      .then(() => {
+        console.log("Photo uploaded successfully");
+
+        const questionData = {
+          title: title,
+          content: content,
+          photoURL: `https://storage.googleapis.com/${storage.bucket}/${storageRef.fullPath}`,
+        };
+
+        postQuestion(questionData)
+          .then((response) => {
+            console.log("Question posted");
+            this.setState({
+              questionSubmitted: true,
+              title: "",
+              content: "",
+              photo: null,
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            alert("Error submitting question. Please try again later.");
+          });
       })
       .catch((error) => {
-        console.error(error);
-        alert('Error submitting question. Please try again later.');
+        console.error("Error uploading photo", error);
+        alert("Error uploading photo. Please try again.");
       });
   };
-  
 
   render() {
     const { title, content, questionSubmitted } = this.state;
@@ -55,9 +85,9 @@ export default class AskQuestion extends Component {
               </div>
               <div className="row">
                 <div className="col-md-6 offset-md-3">
-                  {questionSubmitted ? ( // Display the alert if questionSubmitted is true
+                  {questionSubmitted ? (
                     <div className="alert alert-success" role="alert">
-                      Question sent successfully!
+                      Question asked successfully!
                     </div>
                   ) : null}
                   <form onSubmit={this.handleSubmit}>
@@ -87,6 +117,24 @@ export default class AskQuestion extends Component {
                         onChange={this.handleInputChange}
                       ></textarea>
                     </div>
+                    <div className="form-group">
+  <label htmlFor="photo" className="h5" >
+    Upload Photo
+  </label>
+  <input
+    type="file"
+    id="photo"
+    name="photo"
+    onChange={this.handlePhotoChange}
+    accept="image/*"
+    style={{ display: 'none' }}
+  />
+  <label htmlFor="photo" className="custom-file-upload">
+    <i className="fa fa-cloud-upload" style={{ marginLeft: "7px" }}></i>Choose File
+  </label>
+  <span className="file-name">{this.state.photoName}</span>
+</div>
+
                     <button type="submit" className="btn btn-primary">
                       Submit
                     </button>
