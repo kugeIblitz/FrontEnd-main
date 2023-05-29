@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { storage } from "../auth/firebase";
+import { ref, getMetadata, getDownloadURL } from "firebase/storage";
+
 import "./QuestionDetailsPage.css";
 import "./spinnerLoader.css";
 import Sidebar from "./Sidebar";
@@ -16,22 +18,29 @@ function QuestionDetailsPage() {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`https://127.0.0.1:8000/api/questions/${id}`)
-      .then((response) => {
-        setQuestion(response.data);
-        setLoading(false);
+    axios.get(`https://127.0.0.1:8000/api/questions/${id}`).then(function (response) {
+      setQuestion(response.data);
+      setLoading(false);
 
-        // Retrieve the photo from Firebase Storage
-        const photoRef = storage.ref(`${response.data.title}.png`);
-        photoRef.getDownloadURL().then((url) => {
-          // Set the photo URL in the question data
-          setQuestion((prevQuestion) => ({
-            ...prevQuestion,
-            photoUrl: url,
-          }));
+      // Retrieve the photo from Firebase Storage
+      const photoRef = ref(storage, `${response.data.title}`);
+      getMetadata(photoRef)
+        .then(() => {
+          getDownloadURL(photoRef)
+            .then((url) => {
+              setQuestion((prevQuestion) => ({
+                ...prevQuestion,
+                photoUrl: url
+              }));
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        })
+        .catch((error) => {
+          console.error(error);
         });
-      });
+    });
   }, [id]);
 
   useEffect(() => {
@@ -75,17 +84,17 @@ function QuestionDetailsPage() {
           >
             <h1 style={{ marginTop: "80px" }}>{question.title}</h1>
             {question.photoUrl && (
-              <img src={question.photoUrl} alt={question.title} />
+              <img src={question.photoUrl} alt={question.title} className="question-photo" />
             )}
             <p>{"- " + question.content}</p>
             <h2>Answers</h2>
             {answers.map((ans) => (
-  <div key={ans.id}>
-    {splitContentIntoLines(ans.content).map((line, index) => (
-      <p key={index}>{line.join(' ')}</p>
-    ))}
-  </div>
-))}
+              <div key={ans.id}>
+                {splitContentIntoLines(ans.content).map((line, index) => (
+                  <p key={index}>{line.join(" ")}</p>
+                ))}
+              </div>
+            ))}
 
             <div className="form-container">
               <form onSubmit={handleSubmit}>
@@ -112,26 +121,27 @@ function QuestionDetailsPage() {
       </div>
     </div>
   );
-  function splitContentIntoLines(content) {
-    const words = content.split(' ');
-    const lines = [];
-    let currentLine = [];
-  
-    for (let i = 0; i < words.length; i++) {
-      currentLine.push(words[i]);
-  
-      if ((i + 1) % 10 === 0) {
-        lines.push(currentLine);
-        currentLine = [];
-      }
-    }
-  
-    if (currentLine.length > 0) {
+}
+
+function splitContentIntoLines(content) {
+  const words = content.split(" ");
+  const lines = [];
+  let currentLine = [];
+
+  for (let i = 0; i < words.length; i++) {
+    currentLine.push(words[i]);
+
+    if ((i + 1) % 10 === 0) {
       lines.push(currentLine);
+      currentLine = [];
     }
-  
-    return lines;
   }
+
+  if (currentLine.length > 0) {
+    lines.push(currentLine);
+  }
+
+  return lines;
 }
 
 export default QuestionDetailsPage;

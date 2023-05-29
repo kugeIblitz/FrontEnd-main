@@ -32,7 +32,7 @@ export default class AskQuestion extends Component {
     const { title, content, photo } = this.state;
 
     const storage = getStorage();
-    const storageRef = ref(storage, `photos/${title}`);
+    const storageRef = ref(storage, `${title}`);
 
     uploadBytes(storageRef, photo)
       .then(() => {

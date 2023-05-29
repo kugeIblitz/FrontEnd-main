@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA5gqS1LTSvh8WFnyjIvJMLgJsD3J4z2Tk",
   authDomain: "symfonyreact-79403.firebaseapp.com",
